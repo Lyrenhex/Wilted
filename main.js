@@ -38,6 +38,9 @@ function start() {
   wsClient.on('error', function (error) {
     if (error.toString().indexOf('ECONNREFUSED') > -1) {
       console.log('Socket connection was refused!');
+      console.log('Please ensure that Google Play Music Desktop Player is currently running, and that you have enabled "Enable Playback API" in the player settings (restart the player after enabling this option).');
+      console.log('Retrying in 10 seconds...');
+      setTimeout(start, 10000);
     } else {
       console.log('error', error);
     }
