@@ -3,7 +3,15 @@ const fs = require('fs');
 const request = require('request');
 var querystring = require('querystring');
 
-var conf = JSON.parse(fs.readFileSync('config.json', 'utf-8'));
+try{
+  var conf = JSON.parse(fs.readFileSync('config.json', 'utf-8'));
+}catch(err){
+  conf = {
+    username: false,
+    password: false
+  }
+  console.log("Whoops, badly formatted JSON config. Please make sure that your username and password are both encased in quotes (\"s) and that you have not drastically changed the format of the file. Thanks!")
+}
 
 if(conf.username !== false && conf.password !== false){
   var Auth = {
