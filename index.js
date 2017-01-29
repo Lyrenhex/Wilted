@@ -68,7 +68,7 @@ function check() {
         var json = JSON.parse(data);
 
         if(json.playing){
-          var nextCheck = json.time.total - (json.time.current - 2000);
+          var nextCheck = json.time.total - (json.time.current) + 2000;
           setTimeout(check, nextCheck); // check once the song is over, and give a 2sec grace period for GPMDP
           request({
             headers: {
