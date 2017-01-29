@@ -5,8 +5,9 @@ Many thanks to [ModalSeoul](http://github.com/modalseoul) for his Chrome Scrobbl
 
 ## Using
 
-1. Make sure that in your GPMDP desktop settings you have "Enable Playback API" checked (and restart the client if you've just checked it)
-2. Ensure GPMDP is loaded *before* Wilted (yeah, I need to fix that if it isn't.)
-3. Go to the Wilted download location
-4. Run `npm install` to install required dependencies
-5. Run `npm start` to run Wilted.
+These instructions require that [NodeJS](https://nodejs.org) is installed on your computer, and added to the path. They also assume that you've already downloaded Wilted and extracted it to a folder (if downloaded as a .zip -- extraction not needed if cloned).
+
+1. Ensure GPMDP is loaded *before* Wilted
+2. Go to the Wilted download location
+3. Run `npm install` to install required dependencies
+4. Run `npm start` to run Wilted.
