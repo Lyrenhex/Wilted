@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 /*
 No clue wtf happened, but websockets stopped behaving as they usually do, and nodejs killed the listener. This version works based on files.
 */
