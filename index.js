@@ -7,6 +7,8 @@ const os = require('os');
 const request = require('request');
 var querystring = require('querystring');
 
+var lastSong;
+
 try{
   var conf = JSON.parse(fs.readFileSync('config.json', 'utf-8'));
 }catch(err){
@@ -68,30 +70,35 @@ function check() {
         var json = JSON.parse(data);
 
         if(json.playing){
-          var nextCheck = json.time.total - (json.time.current) + 2000;
-          setTimeout(check, nextCheck); // check once the song is over, and give a 2sec grace period for GPMDP
-          request({
-            headers: {
-              'Authorization': Auth.drfHeader
+          if(json.song.title === lastSong.title && json.time.current >= lastSong.time.current){
+            setTimeout(check, 10000);
+          }else{
+            var nextCheck = json.time.total - (json.time.current - 2000);
+            setTimeout(check, nextCheck); // check once the song is over, and give a 2sec grace period for GPMDP
+            lastSong = json;
+            request({
+              headers: {
+                'Authorization': Auth.drfHeader
+              },
+              url: `${conf.api}scrobbles/`,
+              json: true,
+              body: {
+                'song': json.song.title,
+                'artist': json.song.artist,
+                'album': json.song.album
+              },
+              method: 'POST'
             },
-            url: `${conf.api}scrobbles/`,
-            json: true,
-            body: {
-              'song': json.song.title,
-              'artist': json.song.artist,
-              'album': json.song.album
-            },
-            method: 'POST'
-          },
-          function (error, response, body) {
-            if (!error && response.statusCode == 200) {
-              console.log(`Scrobbled ${json.song.title} by ${json.song.artist} on the album ${json.song.album}. Checking next in ${nextCheck / 1000} seconds.`);
-            } else if(error) {
-              console.log(error);
-            } else {
-              console.log(response, body);
-            }
-          });
+            function (error, response, body) {
+              if (!error && response.statusCode == 200) {
+                console.log(`Scrobbled ${json.song.title} by ${json.song.artist} on the album ${json.song.album}. Checking next in ${nextCheck / 1000} seconds.`);
+              } else if(error) {
+                console.log(error);
+              } else {
+                console.log(response, body);
+              }
+            });
+          }
         }else {
           setTimeout(check, 10000);
         }
