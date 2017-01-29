@@ -7,7 +7,14 @@ const os = require('os');
 const request = require('request');
 var querystring = require('querystring');
 
-var lastSong;
+var lastSong = {
+  song: {
+    title: null
+  },
+  time: {
+    current: null
+  }
+};
 
 try{
   var conf = JSON.parse(fs.readFileSync('config.json', 'utf-8'));
