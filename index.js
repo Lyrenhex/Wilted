@@ -79,7 +79,7 @@ function check() {
         var json = JSON.parse(data);
 
         if(json.playing){
-          if(json.song.title === lastSong.title && json.time.current >= lastSong.time.current){
+          if(json.song.title === lastSong.song.title && json.time.current >= lastSong.time.current){
             setTimeout(check, 10000);
           }else{
             var nextCheck = json.time.total - (json.time.current - 2000);
