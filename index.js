@@ -7,7 +7,13 @@ No clue wtf happened, but websockets stopped behaving as they usually do, and no
 const fs = require('fs');
 const os = require('os');
 const request = require('request');
-var querystring = require('querystring');
+const querystring = require('querystring');
+const readline = require('readline');
+
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
 
 var lastSong = {
   song: {
@@ -23,17 +29,34 @@ try{
 }catch(err){
   conf = {
     username: false,
-    password: false
+    password: false,
+    api: conf.api,
+    websocket: conf.websocket
   }
   console.log("Whoops, badly formatted JSON config. Please make sure that your username and password are both encased in quotes (\"s) and that you have not drastically changed the format of the file. Thanks!")
 }
 
-if(conf.username !== false && conf.password !== false){
-  var Auth = {
-    'token': '',
-    'drfHeader': ''
-  };
+var Auth = {
+  'token': '',
+  'drfHeader': ''
+};
 
+if (conf.username === false || conf.password === false) {
+  rl.question("Please enter your Wilt.fm username: ", (username) => {
+    conf.username = username;
+    rl.question("Please enter your Wilt.fm password: ", (password) => {
+      conf.password = password;
+      // save the new values
+      fs.writeFileSync('config.json', JSON.stringify(conf, null, 2), 'utf-8');
+      init();
+    });
+  });
+} else {
+  init();
+}
+
+function init() {
+  console.log (`Logging in to Wilt.fm as ${conf.username}...`);
   request.post(
     `${conf.api}api-token-auth/`,
     { json: {
@@ -42,9 +65,10 @@ if(conf.username !== false && conf.password !== false){
     }},
     function (error, response, body) {
       if (!error && response.statusCode == 200) {
-        console.log('Connected to WILT API and logged in');
+        console.log('Logged in to Wilt.fm.');
         Auth.token = body.token;
         Auth.drfHeader = `Token ${Auth.token}`;
+        force();
         check();
       } else if(error) {
           console.log(error);
@@ -52,9 +76,15 @@ if(conf.username !== false && conf.password !== false){
         console.log(response, body);
       }
     });
-} else {
-  console.log('Yo, you need to set your WILT.fm username and password in the config.json file.');
-  process.exit();
+}
+
+function force() {
+  rl.question('', (answer) => {
+    // user initiated a forced check
+    console.log("Forcing re-check...");
+    check();
+    force();
+  });
 }
 
 function check() {
@@ -82,8 +112,8 @@ function check() {
           if(json.song.title === lastSong.song.title && json.time.current >= lastSong.time.current){
             setTimeout(check, 10000);
           }else{
-            var nextCheck = json.time.total - (json.time.current - 2000);
-            setTimeout(check, nextCheck); // check once the song is over, and give a 2sec grace period for GPMDP
+            var nextCheck = json.time.total - (json.time.current - 5000);
+            setTimeout(check, nextCheck); // check once the song is over, and give a 5sec grace period for GPMDP (2sec was apparently too small a time)
             lastSong = json;
             request({
               headers: {
